@@ -760,6 +760,23 @@ class SlackBackend(ErrBot):
             except Exception:
                 log.exception(f'An exception occurred while trying to send a card to {to_humanreadable}.[{card}]')
 
+    def send_blocks(self, data, message):
+        to_humanreadable, to_channel_id = self._prepare_message(message)
+        limit = min(self.bot_config.MESSAGE_SIZE_LIMIT, SLACK_MESSAGE_LIMIT)
+        data = {
+            'text': ' ',
+            'channel': to_channel_id,
+            'blocks': data,
+            'link_names': '1',
+            'as_user': 'true'
+        }
+        try:
+            log.debug('Sending data:\n%s', data)
+            self.api_call('chat.postMessage', data=data)
+        except Exception:
+            log.exception(f'An exception occurred while trying to send a card to {to_humanreadable}')
+
+
     def __hash__(self):
         return 0  # this is a singleton anyway
 
